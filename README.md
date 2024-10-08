@@ -1,210 +1,74 @@
-<h1 align="center">
-📖 PandasAI-Chainlit-Docker-Deployment App Template
-</h1>
+# Chainlit AI Assistant
 
-![UI](ui.PNG?raw=true)
+This repository contains a Chainlit-based AI assistant that uses OpenAI's GPT model, Qdrant for vector storage, and PostgreSQL for user management. The assistant can perform web searches, process uploaded documents, and maintain conversation history.
 
+## Features
 
-## 🔧 Features
-
-- Basic Skeleton App configured with `openai` API
-- A ChatBot using PandasAI and Chainlit
-- Docker Support with Optimisation Cache etc
-- Deployment on Google Cloud App Engine
-- Deployment on Google Cloud using `Cloud Run`
-
-> Reference repository: https://github.com/amjadraza/langchain-chainlit-docker-template
-
-This repo contains an `main.py` file which has a template for a chatbot talking to CSV implementation.
-
-## Adding your chain
-To add your chain, you need to change the `load_chain` function in `main.py`.
-Depending on the type of your chain, you may also need to change the inputs/outputs that occur later on.
-
-
-## 💻 Running Locally
-
-1. Clone the repository📂
-
-```bash
-git clone https://github.com/amjadraza/pandasai-chainlit-docker-deployment-template
-```
-
-2. Install dependencies with [Poetry](https://python-poetry.org/) and activate virtual environment🔨
-
-```bash
-poetry install
-poetry shell
-```
-
-3. Run the Chainlit server🚀
-
-```bash
-chainlit run demo_app/main.py
-```
-
-Run App using Docker
---------------------
-This project includes `Dockerfile` to run the app in Docker container. In order to optimise the Docker Image
-size and building time with cache techniques, I have follow tricks in below Article 
-https://medium.com/@albertazzir/blazing-fast-python-docker-builds-with-poetry-a78a66f5aed0
-
-Build the docker container
-
-``docker  build . -t pandasai-chainlit-chat-app:latest``
-
-To generate Image with `DOCKER_BUILDKIT`, follow below command
-
-```DOCKER_BUILDKIT=1 docker build --target=runtime . -t pandasai-chainlit-chat-app:latest```
-
-1. Run the docker container directly 
-
-``docker run -d --name pandasai-chainlit-chat-app -p 8000:8000 pandasai-chainlit-chat-app ``
-
-2. Run the docker container using docker-compose (Recommended)
-
-``docker-compose up``
-
-
-Deploy App on Google App Engine
---------------------------------
-This app can be deployed on Google App Engine following below steps.
+- OAuth authentication with Google
+- Web search functionality using SearX
+- Document processing (PDF and TXT files)
+- Conversation history management
+- Vector storage for similarity search
+- Rate limiting for API calls
+- Caching for LLM responses
 
 ## Prerequisites
 
-Follow below guide on basic Instructions.
-[How to deploy Streamlit apps to Google App Engine](https://dev.to/whitphx/how-to-deploy-streamlit-apps-to-google-app-engine-407o)
+- Docker and Docker Compose
+- OpenAI API key
+- Google OAuth credentials
+- SearX instance
 
-We added below tow configurations files 
+## Setup
 
-1. `app.yaml`: A Configuration file for `gcloud`
-2. `.gcloudignore` : Configure the file to ignore file / folders to be uploaded
-
-I have adopted `Dockerfile` to deploy the app on GCP APP Engine.
-
-1. Initialise & Configure the App
-
-``gcloud app create --project=[YOUR_PROJECT_ID]``
-
-2. Deploy the App using
-
-``gcloud app deploy``
-
-3. Access the App using 
-
-https://pandasai-chat-app-dpy4wfgkcq-ts.a.run.app/
-
-
-Deploy App on Google Cloud using Cloud Run (RECOMMENDED)
---------------------------------------------------------
-This app can be deployed on Google Cloud using Cloud Run following below steps.
-
-## Prerequisites
-
-Follow below guide on basic Instructions.
-[How to deploy Streamlit apps to Google App Engine](https://dev.to/whitphx/how-to-deploy-streamlit-apps-to-google-app-engine-407o)
-
-We added below tow configurations files 
-
-1. `cloudbuild.yaml`: A Configuration file for `gcloud`
-2. `.gcloudignore` : Configure the file to ignore file / folders to be uploaded
-
-we are going to use `Dockerfile` to deploy the app using Google Cloud Run.
-
-1. Initialise & Configure the Google Project using Command Prompt
-
-`gcloud app create --project=[YOUR_PROJECT_ID]`
-
-or set the project
-
-`gcloud config set pandasai-app`
-
-Set the Region if not done before
-
-`gcloud config set compute/region australia-southeast1`
-
-
-2. Enable Services for the Project
-
-```
-gcloud services enable cloudbuild.googleapis.com
-gcloud services enable run.googleapis.com
-```
-
-3. Create Service Account
-
-```
-gcloud iam service-accounts create pandasai-app-cr \
-    --display-name="pandasai-app-cr"
-
-gcloud projects add-iam-policy-binding pandasai-app \
-    --member="serviceAccount:pandasai-app-cr@pandasai-app.iam.gserviceaccount.com" \
-    --role="roles/run.invoker"
-
-gcloud projects add-iam-policy-binding pandasai-app \
-    --member="serviceAccount:pandasai-app-cr@pandasai-app.iam.gserviceaccount.com" \
-    --role="roles/serviceusage.serviceUsageConsumer"
-
-gcloud projects add-iam-policy-binding pandasai-app \
-    --member="serviceAccount:pandasai-app-cr@pandasai-app.iam.gserviceaccount.com" \
-    --role="roles/run.admin"
-``` 
-
-4. Generate the Docker
-
-`DOCKER_BUILDKIT=1 docker build --target=runtime . -t australia-southeast1-docker.pkg.dev/pandasai-app/pai-app/pandasai-chainlit-chat-app:latest`
-
-5. Push Image to Google Artifact's Registry
-
-Create the repository with name `pai-app`
-
-```
-gcloud artifacts repositories create pai-app \
-    --repository-format=docker \
-    --location=australia-southeast1 \
-    --description="A PandasAI Chainlit App" \
-    --async
-```
-
-Configure-docker 
-
-`gcloud auth configure-docker australia-southeast1-docker.pkg.dev`
-
-In order to push the `docker-image` to Artifact registry, first create app in the region of choice. 
-
-Check the artifacts locations
-
-`gcloud artifacts locations list`
+1. Clone this repository:
+git clone https://github.com/your-username/your-repo-name.git cd your-repo-name
 
 
 
-Once ready, let us push the image to location
-
-`docker push australia-southeast1-docker.pkg.dev/pandasai-app/pai-app/pandasai-chainlit-chat-app:latest`
-
-6. Deploy using Cloud Run
-
-Once image is pushed to Google Cloud Artifacts Registry. Let us deploy the image.
-
-```
-gcloud run deploy pandasai-chat-app --image=australia-southeast1-docker.pkg.dev/pandasai-app/pai-app/pandasai-chainlit-chat-app:latest \
-    --region=australia-southeast1 \
-    --service-account=pandasai-app-cr@pandasai-app.iam.gserviceaccount.com \
-    --port=8000
-```
-
-7. Test the App Yourself
-
-You can try the app using below link 
-
-https://pandasai-chat-app-dpy4wfgkcq-ts.a.run.app/
+Copy code
 
 
-## Report Feedbacks
+2. Create a `.env` file in the root directory with the following variables:
+DB_USER=your_db_user DB_PASSWORD=your_db_password DB_HOST=db DB_PORT=5432 DB_NAME=your_db_name OAUTH_GOOGLE_CLIENT_ID=your_google_client_id OAUTH_GOOGLE_CLIENT_SECRET=your_google_client_secret OAUTH_REDIRECT_URI=your_redirect_uri OPENAI_API_KEY=your_openai_api_key OPENAI_BASE_URL=https://api.openai.com/v1 QDRANT_HOST=qdrant QDRANT_PORT=6333 FILES_DIRECTORY=/app/files SEARX_HOST=your_searx_host ALLOWED_EMAILS=email1@example.com,email2@example.com
 
-As `pandasai-chainlit-docker-deployment-template` is a template project with minimal example. Report issues if you face any. 
 
-## DISCLAIMER
 
-This is a template App, when using with openai_api key, you will be charged a nominal fee depending
-on number of prompts etc.
+Copy code
+
+
+3. Create a `files` directory in the project root for document storage.
+
+## Running the Application
+
+To run the application, use Docker Compose:
+
+docker-compose up --build
+
+
+
+Copy code
+
+
+The application will be available at `http://localhost:8501`.
+
+## Usage
+
+1. Open the application in your web browser.
+2. Log in using your Google account (must be in the allowed emails list).
+3. Start chatting with the AI assistant.
+4. You can upload PDF or TXT files for processing.
+5. The assistant will perform web searches and use its knowledge base to answer your questions.
+
+## Development
+
+The main application logic is in `app.py`. To modify the assistant's behavior, edit this file.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+[Insert your chosen license here]
+

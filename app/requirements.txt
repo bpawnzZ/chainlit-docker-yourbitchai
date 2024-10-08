@@ -1,0 +1,17 @@
+psycopg2-binary
+chainlit
+openai
+langchain
+langchain-community
+langchain-huggingface
+qdrant-client
+sqlalchemy
+ratelimit
+aiohttp
+python-dotenv
+tiktoken
+huggingface_hub
+sentence-transformers
+cachetools
+langchain-qdrant
+beautifulsoup4

@@ -20,8 +20,12 @@ COPY pyproject.toml poetry.lock ./
 
 RUN poetry install --without dev --no-root && rm -rf $POETRY_CACHE_DIR
 
+# Install requirements from demo_app/requirements.txt
+COPY demo_app/requirements.txt ./demo_app/
+RUN pip install -r demo_app/requirements.txt && rm -rf /root/.cache/pip/* 
+
 # The runtime image, used to just run the code provided its virtual environment
-FROM python:3.11-slim-buster as runtime
+FROM python:3.10-slim-buster as runtime
 
 ENV VIRTUAL_ENV=/app/.venv \
     PATH="/app/.venv/bin:$PATH"

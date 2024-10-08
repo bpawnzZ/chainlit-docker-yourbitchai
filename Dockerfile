@@ -1,5 +1,5 @@
 # The builder image, used to build the virtual environment
-FROM python:3.11-slim-buster as builder
+FROM python:3.10-slim-buster as builder
 
 RUN apt-get update && apt-get install -y git
 
@@ -32,4 +32,4 @@ COPY ./demo_app ./demo_app
 COPY ./.chainlit ./.chainlit
 COPY chainlit.md ./
 
-CMD ["chainlit", "run", "app/app.py"]
+CMD ["chainlit", "run", "demo_app/main.py"]
